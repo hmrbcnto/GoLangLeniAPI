@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	user_usecase "github.com/hmrbcnto/go-leni-api/domain/user/usecases"
 	"github.com/hmrbcnto/go-leni-api/infrastructure/db"
 	"github.com/hmrbcnto/go-leni-api/infrastructure/db/mongo_repositories/user_repository"
-	"github.com/hmrbcnto/go-leni-api/usecases/user_usecase"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
