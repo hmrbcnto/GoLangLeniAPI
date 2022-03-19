@@ -6,6 +6,9 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/hmrbcnto/go-leni-api/infrastructure/db"
+	"github.com/hmrbcnto/go-leni-api/infrastructure/db/mongo_repositories/user_repository"
+	"github.com/hmrbcnto/go-leni-api/usecases/user_usecase"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -57,9 +60,18 @@ func Connect() error {
 func main() {
 
 	// Tries to connect to mongodb
-	if err := Connect(); err != nil {
+	// if err := Connect(); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	client, err := db.NewMongoClient()
+
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	userRepo := user_repository.New(client)
+	uc := user_usecase.New(userRepo)
 
 	// New instance of app, fiber is to go what express is to node
 	app := fiber.New()
@@ -67,16 +79,9 @@ func main() {
 	// Routers/Controllers
 	app.Get("/users", func(c *fiber.Ctx) error {
 
-		query := bson.D{{}}
-
-		cursor, err := mg.Db.Collection("users").Find(c.Context(), query)
+		users, err := uc.GetUsers(c)
 
 		if err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
-
-		var users []User = make([]User, 0)
-		if err := cursor.All(c.Context(), &users); err != nil {
 			return c.Status(500).SendString(err.Error())
 		}
 
