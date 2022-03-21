@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,6 +18,7 @@ const dbName = "leni-facts-api"
 const mongoUri = "mongodb+srv://hmrbcnt:jonasbayot@fullstackopenmongodb.lqee8.mongodb.net/leniApi?retryWrites=true&w=majority"
 
 func NewMongoClient() (*mongo.Client, error) {
+	log.Println("Connecting to Mongo")
 	// Connecting to mongodb uri
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUri))
 
@@ -27,6 +29,8 @@ func NewMongoClient() (*mongo.Client, error) {
 	if err = client.Connect(ctx); err != nil {
 		return nil, err
 	}
+
+	log.Println("Connected to Mongo")
 
 	return client, nil
 }
