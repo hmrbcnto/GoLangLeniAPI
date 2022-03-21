@@ -1,68 +1,16 @@
 package main
 
 import (
-	"context"
 	"log"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	user_usecase "github.com/hmrbcnto/go-leni-api/domain/user/usecases"
 	"github.com/hmrbcnto/go-leni-api/infrastructure/db"
 	"github.com/hmrbcnto/go-leni-api/infrastructure/db/mongo_repositories/user_repository"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-type MongoInstance struct {
-	Client *mongo.Client
-	Db     *mongo.Database
-}
-
-var mg MongoInstance
-
-const dbName = "leni-facts-api"
-const mongoUri = "mongodb+srv://hmrbcnt:jonasbayot@fullstackopenmongodb.lqee8.mongodb.net/leniApi?retryWrites=true&w=majority"
-
-type User struct {
-	ID       string
-	Name     string
-	Password string
-	Username string
-}
-
-func Connect() error {
-	// Connecting to mongodb uri
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongoUri))
-
-	// Defining a timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	err = client.Connect(ctx)
-	db := client.Database("leniApi")
-
-	// Handling error
-	if err != nil {
-		return err
-	}
-
-	mg = MongoInstance{
-		Client: client,
-		Db:     db,
-	}
-
-	return nil
-}
 
 // Main function
 func main() {
-
-	// Tries to connect to mongodb
-	// if err := Connect(); err != nil {
-	// 	log.Fatal(err)
-	// }
 
 	client, err := db.NewMongoClient()
 
