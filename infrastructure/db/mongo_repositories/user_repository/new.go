@@ -9,6 +9,7 @@ import (
 
 type UserRepo interface {
 	GetUsers(c *fiber.Ctx) ([]models.User, error)
+	CreateUser(c *fiber.Ctx) (*models.User, error)
 }
 
 type userRepo struct {
@@ -32,4 +33,34 @@ func (uRepo *userRepo) GetUsers(c *fiber.Ctx) ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func (uRepo *userRepo) CreateUser(c *fiber.Ctx) (*models.User, error) {
+	user := new(models.User)
+
+	if err := c.BodyParser(user); err != nil {
+		return nil, err
+	}
+
+	user.ID = ""
+
+	insertionResult, err := uRepo.db.Collection("users").InsertOne(c.Context(), user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	/// Querying to make sure data was inserted
+	// Building request
+	filter := bson.D{{Key: "_id", Value: insertionResult.InsertedID}}
+
+	// Query
+	createdRecord := uRepo.db.Collection("users").FindOne(c.Context(), filter)
+
+	// Decoding
+	createdUser := &models.User{}
+	createdRecord.Decode(createdUser)
+
+	// Returning
+	return createdUser, nil
 }

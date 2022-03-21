@@ -8,6 +8,7 @@ import (
 
 type UserUseCase interface {
 	GetUsers(c *fiber.Ctx) ([]models.User, error)
+	CreateUser(c *fiber.Ctx) (*models.User, error)
 }
 
 type userUseCase struct {
@@ -23,4 +24,8 @@ func New(userRepo user_repository.UserRepo) UserUseCase {
 
 func (uc *userUseCase) GetUsers(c *fiber.Ctx) ([]models.User, error) {
 	return uc.userRepo.GetUsers(c)
+}
+
+func (uc *userUseCase) CreateUser(c *fiber.Ctx) (*models.User, error) {
+	return uc.userRepo.CreateUser(c)
 }
