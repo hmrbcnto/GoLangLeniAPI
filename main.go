@@ -26,107 +26,91 @@ func main() {
 
 	// Routers/Controllers
 	app.Get("/users", func(c *fiber.Ctx) error {
-
 		users, err := uc.GetUsers(c)
 
 		if err != nil {
 			return c.Status(500).SendString(err.Error())
 		}
 
-		return c.JSON(users)
+		return c.Status(200).JSON(users)
 	})
 
 	app.Post("/users", func(c *fiber.Ctx) error {
-		collection := mg.Db.Collection("users")
 
-		user := new(User)
-
-		if err := c.BodyParser(user); err != nil {
-			return c.Status(400).SendString(err.Error())
-		}
-
-		user.ID = ""
-
-		insertionResult, err := collection.InsertOne(c.Context(), user)
+		user, err := uc.CreateUser(c)
 
 		if err != nil {
-			return c.Status(500).SendString(err.Error())
+			return c.Status(500).JSON(err.Error())
 		}
 
-		filter := bson.D{{Key: "_id", Value: insertionResult.InsertedID}}
-
-		createdRecord := collection.FindOne(c.Context(), filter)
-
-		createdUser := &User{}
-		createdRecord.Decode(createdUser)
-
-		return c.Status(201).JSON(createdUser)
-	})
-	app.Put("/users/:id", func(c *fiber.Ctx) error {
-		idParam := c.Params("id")
-
-		userId, err := primitive.ObjectIDFromHex(idParam)
-
-		if err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
-
-		user := new(User)
-
-		if err := c.BodyParser(user); err != nil {
-			return c.Status(400).SendString(err.Error())
-		}
-
-		query := bson.D{{Key: "_id", Value: userId}}
-
-		update := bson.D{
-			{
-				Key: "$set",
-				Value: bson.D{
-					{Key: "name", Value: user.Name},
-					{Key: "password", Value: user.Password},
-					{Key: "username", Value: user.Username},
-				},
-			},
-		}
-
-		err = mg.Db.Collection("users").FindOneAndUpdate(c.Context(), query, update).Err()
-
-		if err != nil {
-			if err == mongo.ErrNoDocuments {
-				return c.Status(400).SendString(err.Error())
-			}
-			return c.Status(500).SendString(err.Error())
-		}
-
-		user.ID = idParam
-
-		return c.Status(200).JSON(user)
+		return c.Status(201).JSON(user)
 	})
 
-	app.Delete("/users/:id", func(c *fiber.Ctx) error {
-		idParam := c.Params("id")
+	// app.Put("/users/:id", func(c *fiber.Ctx) error {
+	// 	idParam := c.Params("id")
 
-		userId, err := primitive.ObjectIDFromHex(idParam)
+	// 	userId, err := primitive.ObjectIDFromHex(idParam)
 
-		if err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
+	// 	if err != nil {
+	// 		return c.Status(500).SendString(err.Error())
+	// 	}
 
-		query := bson.D{{Key: "_id", Value: userId}}
+	// 	user := new(User)
 
-		result, err := mg.Db.Collection("users").DeleteOne(c.Context(), query)
+	// 	if err := c.BodyParser(user); err != nil {
+	// 		return c.Status(400).SendString(err.Error())
+	// 	}
 
-		if err != nil {
-			return c.Status(500).SendString(err.Error())
-		}
+	// 	query := bson.D{{Key: "_id", Value: userId}}
 
-		if result.DeletedCount < 1 {
-			return c.SendStatus(404)
-		}
+	// 	update := bson.D{
+	// 		{
+	// 			Key: "$set",
+	// 			Value: bson.D{
+	// 				{Key: "name", Value: user.Name},
+	// 				{Key: "password", Value: user.Password},
+	// 				{Key: "username", Value: user.Username},
+	// 			},
+	// 		},
+	// 	}
 
-		return c.Status(200).JSON("Record deleted")
-	})
+	// 	err = mg.Db.Collection("users").FindOneAndUpdate(c.Context(), query, update).Err()
+
+	// 	if err != nil {
+	// 		if err == mongo.ErrNoDocuments {
+	// 			return c.Status(400).SendString(err.Error())
+	// 		}
+	// 		return c.Status(500).SendString(err.Error())
+	// 	}
+
+	// 	user.ID = idParam
+
+	// 	return c.Status(200).JSON(user)
+	// })
+
+	// app.Delete("/users/:id", func(c *fiber.Ctx) error {
+	// 	idParam := c.Params("id")
+
+	// 	userId, err := primitive.ObjectIDFromHex(idParam)
+
+	// 	if err != nil {
+	// 		return c.Status(500).SendString(err.Error())
+	// 	}
+
+	// 	query := bson.D{{Key: "_id", Value: userId}}
+
+	// 	result, err := mg.Db.Collection("users").DeleteOne(c.Context(), query)
+
+	// 	if err != nil {
+	// 		return c.Status(500).SendString(err.Error())
+	// 	}
+
+	// 	if result.DeletedCount < 1 {
+	// 		return c.SendStatus(404)
+	// 	}
+
+	// 	return c.Status(200).JSON("Record deleted")
+	// })
 
 	log.Fatal(app.Listen(":9000"))
 }
