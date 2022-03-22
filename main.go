@@ -68,29 +68,20 @@ func main() {
 		return c.Status(200).JSON(user)
 	})
 
-	// app.Delete("/users/:id", func(c *fiber.Ctx) error {
-	// 	idParam := c.Params("id")
+	app.Delete("/users/:id", func(c *fiber.Ctx) error {
+		result, err := uc.DeleteUserById(c)
 
-	// 	userId, err := primitive.ObjectIDFromHex(idParam)
+		if err != nil {
+			return c.Status(500).JSON(err.Error())
+		}
 
-	// 	if err != nil {
-	// 		return c.Status(500).SendString(err.Error())
-	// 	}
+		// Not found error
+		if result.DeletedCount < 1 {
+			return c.Status(404).JSON(err.Error())
+		}
 
-	// 	query := bson.D{{Key: "_id", Value: userId}}
-
-	// 	result, err := mg.Db.Collection("users").DeleteOne(c.Context(), query)
-
-	// 	if err != nil {
-	// 		return c.Status(500).SendString(err.Error())
-	// 	}
-
-	// 	if result.DeletedCount < 1 {
-	// 		return c.SendStatus(404)
-	// 	}
-
-	// 	return c.Status(200).JSON("Record deleted")
-	// })
+		return c.Status(200).JSON("Deleted successfully!")
+	})
 
 	log.Fatal(app.Listen(":9000"))
 }

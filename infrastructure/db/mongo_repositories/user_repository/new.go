@@ -13,6 +13,7 @@ type UserRepo interface {
 	CreateUser(c *fiber.Ctx) (*models.User, error)
 	GetUserById(c *fiber.Ctx) (*models.User, error)
 	UpdateUserById(c *fiber.Ctx) (*models.User, error)
+	DeleteUserById(c *fiber.Ctx) (*mongo.DeleteResult, error)
 }
 
 type userRepo struct {
@@ -133,4 +134,26 @@ func (uRepo *userRepo) UpdateUserById(c *fiber.Ctx) (*models.User, error) {
 	user.ID = idParam
 
 	return user, nil
+}
+
+func (uRepo *userRepo) DeleteUserById(c *fiber.Ctx) (*mongo.DeleteResult, error) {
+	idParam := c.Params("id")
+
+	userId, err := primitive.ObjectIDFromHex(idParam)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Building query
+	query := bson.D{{Key: "_id", Value: userId}}
+
+	// Deleting
+	result, err := uRepo.db.Collection("users").DeleteOne(c.Context(), query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

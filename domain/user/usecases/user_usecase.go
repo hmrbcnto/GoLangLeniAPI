@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/hmrbcnto/go-leni-api/infrastructure/db/mongo_repositories/user_repository"
 	"github.com/hmrbcnto/go-leni-api/models"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserUseCase interface {
@@ -11,6 +12,7 @@ type UserUseCase interface {
 	CreateUser(c *fiber.Ctx) (*models.User, error)
 	GetUserById(c *fiber.Ctx) (*models.User, error)
 	UpdateUserById(c *fiber.Ctx) (*models.User, error)
+	DeleteUserById(c *fiber.Ctx) (*mongo.DeleteResult, error)
 }
 
 type userUseCase struct {
@@ -38,4 +40,8 @@ func (uc *userUseCase) GetUserById(c *fiber.Ctx) (*models.User, error) {
 
 func (uc *userUseCase) UpdateUserById(c *fiber.Ctx) (*models.User, error) {
 	return uc.userRepo.UpdateUserById(c)
+}
+
+func (uc *userUseCase) DeleteUserById(c *fiber.Ctx) (*mongo.DeleteResult, error) {
+	return uc.userRepo.DeleteUserById(c)
 }
