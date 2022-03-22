@@ -12,6 +12,7 @@ type UserRepo interface {
 	GetUsers(c *fiber.Ctx) ([]models.User, error)
 	CreateUser(c *fiber.Ctx) (*models.User, error)
 	GetUserById(c *fiber.Ctx) (*models.User, error)
+	UpdateUserById(c *fiber.Ctx) (*models.User, error)
 }
 
 type userRepo struct {
@@ -87,5 +88,49 @@ func (uRepo *userRepo) GetUserById(c *fiber.Ctx) (*models.User, error) {
 
 	// Returning
 	return foundUser, nil
+}
 
+func (uRepo *userRepo) UpdateUserById(c *fiber.Ctx) (*models.User, error) {
+	// Getting id param
+	idParam := c.Params("id")
+
+	userId, err := primitive.ObjectIDFromHex(idParam)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Creating user struct
+	user := new(models.User)
+
+	// Casting body content to user struct
+	err = c.BodyParser(user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Updating
+	query := bson.D{{Key: "_id", Value: userId}}
+
+	update := bson.D{
+		{
+			Key: "$set",
+			Value: bson.D{
+				{Key: "name", Value: user.Name},
+				{Key: "password", Value: user.Password},
+				{Key: "username", Value: user.Username},
+			},
+		},
+	}
+
+	err = uRepo.db.Collection("users").FindOneAndUpdate(c.Context(), query, update).Err()
+
+	if err != nil {
+		return nil, err
+	}
+
+	user.ID = idParam
+
+	return user, nil
 }

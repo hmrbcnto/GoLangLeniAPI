@@ -58,47 +58,15 @@ func main() {
 
 	})
 
-	// app.Put("/users/:id", func(c *fiber.Ctx) error {
-	// 	idParam := c.Params("id")
+	app.Put("/users/:id", func(c *fiber.Ctx) error {
+		user, err := uc.UpdateUserById(c)
 
-	// 	userId, err := primitive.ObjectIDFromHex(idParam)
+		if err != nil {
+			return c.Status(500).JSON(err.Error())
+		}
 
-	// 	if err != nil {
-	// 		return c.Status(500).SendString(err.Error())
-	// 	}
-
-	// 	user := new(User)
-
-	// 	if err := c.BodyParser(user); err != nil {
-	// 		return c.Status(400).SendString(err.Error())
-	// 	}
-
-	// 	query := bson.D{{Key: "_id", Value: userId}}
-
-	// 	update := bson.D{
-	// 		{
-	// 			Key: "$set",
-	// 			Value: bson.D{
-	// 				{Key: "name", Value: user.Name},
-	// 				{Key: "password", Value: user.Password},
-	// 				{Key: "username", Value: user.Username},
-	// 			},
-	// 		},
-	// 	}
-
-	// 	err = mg.Db.Collection("users").FindOneAndUpdate(c.Context(), query, update).Err()
-
-	// 	if err != nil {
-	// 		if err == mongo.ErrNoDocuments {
-	// 			return c.Status(400).SendString(err.Error())
-	// 		}
-	// 		return c.Status(500).SendString(err.Error())
-	// 	}
-
-	// 	user.ID = idParam
-
-	// 	return c.Status(200).JSON(user)
-	// })
+		return c.Status(200).JSON(user)
+	})
 
 	// app.Delete("/users/:id", func(c *fiber.Ctx) error {
 	// 	idParam := c.Params("id")

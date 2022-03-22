@@ -10,6 +10,7 @@ type UserUseCase interface {
 	GetUsers(c *fiber.Ctx) ([]models.User, error)
 	CreateUser(c *fiber.Ctx) (*models.User, error)
 	GetUserById(c *fiber.Ctx) (*models.User, error)
+	UpdateUserById(c *fiber.Ctx) (*models.User, error)
 }
 
 type userUseCase struct {
@@ -33,4 +34,8 @@ func (uc *userUseCase) CreateUser(c *fiber.Ctx) (*models.User, error) {
 
 func (uc *userUseCase) GetUserById(c *fiber.Ctx) (*models.User, error) {
 	return uc.userRepo.GetUserById((c))
+}
+
+func (uc *userUseCase) UpdateUserById(c *fiber.Ctx) (*models.User, error) {
+	return uc.userRepo.UpdateUserById(c)
 }
