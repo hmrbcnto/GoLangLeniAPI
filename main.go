@@ -46,6 +46,18 @@ func main() {
 		return c.Status(201).JSON(user)
 	})
 
+	app.Get("/users/:id", func(c *fiber.Ctx) error {
+
+		user, err := uc.GetUserById(c)
+
+		if err != nil {
+			return c.Status(500).JSON(err.Error())
+		}
+
+		return c.Status(200).JSON(user)
+
+	})
+
 	// app.Put("/users/:id", func(c *fiber.Ctx) error {
 	// 	idParam := c.Params("id")
 

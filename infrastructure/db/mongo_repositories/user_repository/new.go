@@ -4,12 +4,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/hmrbcnto/go-leni-api/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserRepo interface {
 	GetUsers(c *fiber.Ctx) ([]models.User, error)
 	CreateUser(c *fiber.Ctx) (*models.User, error)
+	GetUserById(c *fiber.Ctx) (*models.User, error)
 }
 
 type userRepo struct {
@@ -63,4 +65,27 @@ func (uRepo *userRepo) CreateUser(c *fiber.Ctx) (*models.User, error) {
 
 	// Returning
 	return createdUser, nil
+}
+
+func (uRepo *userRepo) GetUserById(c *fiber.Ctx) (*models.User, error) {
+	id := c.Params("id")
+
+	userId, err := primitive.ObjectIDFromHex(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query := bson.D{{Key: "_id", Value: userId}}
+
+	// Query
+	foundRecord := uRepo.db.Collection("users").FindOne(c.Context(), query)
+
+	// Decoding
+	foundUser := &models.User{}
+	foundRecord.Decode(foundUser)
+
+	// Returning
+	return foundUser, nil
+
 }
